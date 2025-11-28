@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIP Premium Weather App</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+    body{
+      height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;
+      background:#020617;
+      transition:background 0.5s;
+    }
+
+    body.light{
+      background:#cce7ff;
+    }
+
+    /* PREMIUM NEON GRID BACKGROUND */
+    .grid-bg{
+      position:absolute;top:0;left:0;width:100%;height:100%;z-index:-3;
+      background:url('https://i.ibb.co/Dfjp9bv/grid.png');
+      opacity:0.15;animation:moveGrid 20s linear infinite;
+      transition:opacity 0.5s;
+    }
+    @keyframes moveGrid{
+      from{background-position:0 0;} to{background-position:1000px 1000px;}
+    }
+
+    /* VIP GRADIENT ORB */
+    .orb{
+      position:absolute;width:600px;height:600px;border-radius:50%;
+      background:radial-gradient(circle,#00d9ff,#0075ff,#001a33);
+      filter:blur(150px);z-index:-2;animation:orbFloat 6s infinite ease-in-out;
+      transition:background 0.5s;
+    }
+    @keyframes orbFloat{
+      0%{transform:translate(-80px,-80px);}50%{transform:translate(80px,80px);}100%{transform:translate(-80px,-80px);}
+    }
+
+    /* VIP CARD */
+    .card{
+      width:92%;max-width:420px;
+      background:rgba(255,255,255,0.06);
+      border-radius:28px;padding:40px;
+      backdrop-filter:blur(25px);
+      border:1px solid rgba(255,255,255,0.25);
+      box-shadow:0 0 40px rgba(0,200,255,0.25);
+      animation:cardPop 0.8s ease;
+      transition:background 0.5s, color 0.5s;
+    }
+    body.light .card{
+      background:rgba(255,255,255,0.8);
+      color:#000;
+      box-shadow:0 0 40px rgba(0,0,0,0.15);
+    }
+    @keyframes cardPop{
+      from{transform:scale(0.7);opacity:0;}to{transform:scale(1);opacity:1;}
+    }
+
+    h2{
+      text-align:center;font-size:32px;color:#00eaff;font-weight:700;margin-bottom:20px;
+      text-shadow:0 0 20px #00eaff;
+      transition:color 0.5s,text-shadow 0.5s;
+    }
+    body.light h2{
+      color:#0077cc;
+      text-shadow:none;
+    }
+
+    input{
+      width:100%;padding:14px;border-radius:14px;border:none;font-size:18px;
+      background:rgba(255,255,255,0.9);margin-bottom:18px;
+    }
+
+    button{
+      width:100%;padding:14px;font-size:18px;font-weight:600;border:none;
+      border-radius:14px;cursor:pointer;color:white;
+      background:linear-gradient(135deg,#00eaff,#0072ff,#001aff);
+      box-shadow:0 0 15px rgba(0,200,255,0.4);
+      transition:0.3s;
+    }
+    body.light button{
+      color:white;
+      background:linear-gradient(135deg,#0072ff,#00bfff,#0055aa);
+    }
+    button:hover{transform:scale(1.05);box-shadow:0 0 25px rgba(0,200,255,0.7);}    
+
+    .weather-box{text-align:center;margin-top:20px;animation:fade 1s forwards;opacity:0;}
+    @keyframes fade{to{opacity:1;}}
+
+    .icon{width:150px;animation:floatIcon 3s infinite ease-in-out;}
+    @keyframes floatIcon{0%{transform:translateY(0);}50%{transform:translateY(-12px);}100%{transform:translateY(0);}}
+
+    .temp{font-size:62px;font-weight:800;color:#00eaff;text-shadow:0 0 20px #00eaff;}
+    .description{font-size:26px;color:white;text-transform:capitalize;opacity:0.9;}
+
+    body.light .description{color:#333;}
+
+    /* EXTRA INFO */
+    .extra-box{
+      margin-top:28px;display:flex;justify-content:space-between;gap:14px;
+    }
+    .extra-item{
+      flex:1;background:rgba(255,255,255,0.15);
+      padding:14px;border-radius:18px;text-align:center;
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,0.2);
+      box-shadow:0 0 12px rgba(0,200,255,0.3);
+      transition:background 0.5s,color 0.5s;
+    }
+    body.light .extra-item{
+      background:rgba(255,255,255,0.3);
+      border:1px solid rgba(0,0,0,0.1);
+      box-shadow:0 0 12px rgba(0,0,0,0.15);
+    }
+    .extra-item h4{font-size:15px;color:#9bdfff;margin-bottom:6px;}
+    body.light .extra-item h4{color:#0077cc;}
+    .extra-item p{font-size:20px;color:white;font-weight:600;}
+    body.light .extra-item p{color:#000;}
+
+    .loader{
+      width:45px;height:45px;border:5px solid rgba(255,255,255,0.25);
+      border-top:5px solid #00eaff;border-radius:50%;margin:20px auto;
+      animation:spin 0.7s linear infinite;
+    }
+    @keyframes spin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+
+    /* Toggle Button */
+    .toggle-btn{
+      position:absolute;top:20px;right:20px;padding:10px 18px;
+      background:linear-gradient(135deg,#00eaff,#0072ff);
+      border:none;border-radius:12px;color:white;font-weight:600;
+      cursor:pointer;box-shadow:0 0 12px rgba(0,200,255,0.5);
+      transition:0.3s;
+    }
+    .toggle-btn:hover{transform:scale(1.05);}
+  </style>
+</head>
+<body>
+
+  <div class="grid-bg"></div>
+  <div class="orb"></div>
+
+  <button class="toggle-btn" onclick="toggleTheme()">🌞 Toggle Theme</button>
+
+  <div class="card">
+    <h2>VIP Weather</h2>
+    <input type="text" id="city" placeholder="Enter City Name">
+    <button onclick="getWeather()">Search</button>
+
+    <div id="result"></div>
+
+    <div class="extra-box">
+      <div class="extra-item"><h4>Humidity</h4><p id="humidity">--%</p></div>
+      <div class="extra-item"><h4>Wind</h4><p id="wind">-- km/h</p></div>
+      <div class="extra-item"><h4>Feels Like</h4><p id="feels">--°C</p></div>
+    </div>
+  </div>
+
+<script>
+function toggleTheme(){
+  document.body.classList.toggle('light');
+}
+
+// Function to change background based on weather
+function changeBackground(weather){
+  const orb=document.querySelector('.orb');
+  const grid=document.querySelector('.grid-bg');
+  if(weather.includes('cloud')){
+    document.body.style.background='#4a4a4a';
+    orb.style.background='radial-gradient(circle,#a0a0a0,#5a5a5a,#2a2a2a)';
+  }else if(weather.includes('rain')){
+    document.body.style.background='#2a3f54';
+    orb.style.background='radial-gradient(circle,#4a7dbd,#2a4f6b,#001a33)';
+  }else if(weather.includes('snow')){
+    document.body.style.background='#e6f0ff';
+    orb.style.background='radial-gradient(circle,#d0e6ff,#a0cfff,#80b8ff)';
+  }else if(weather.includes('clear')){
+    document.body.style.background='#87ceeb';
+    orb.style.background='radial-gradient(circle,#00d9ff,#0075ff,#001a33)';
+  }else{
+    document.body.style.background='#020617';
+    orb.style.background='radial-gradient(circle,#00d9ff,#0075ff,#001a33)';
+  }
+}
+
+// Function to speak weather in Hindi
+function speakWeather(city,temp,desc){
+  const msg=`${city} ka mausam ${desc} hai, taapman ${temp} degree Celsius hai.`;
+  const utter=new SpeechSynthesisUtterance(msg);
+  utter.lang='hi-IN';
+  speechSynthesis.speak(utter);
+}
+
+async function getWeather(){
+  const city=document.getElementById('city').value;
+  const resultBox=document.getElementById('result');
+  resultBox.innerHTML='<div class="loader"></div>';
+
+  try{
+    const apiKey="cd8a63476af531ee76e66c91d23025ab";
+    const url=`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+    const res=await fetch(url);
+    if(!res.ok){resultBox.innerHTML='<p style="color:white;text-align:center;">City Not Found ❌</p>';return;}
+
+    const data=await res.json();
+    const icon=`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    const description=data.weather[0].description;
+
+    resultBox.innerHTML=`
+      <div class="weather-box">
+        <img src="${icon}" class="icon" />
+        <h3 style="color:#9bdfff;margin-bottom:5px;">${data.name}, ${data.sys.country}</h3>
+        <p class="temp">${data.main.temp}°C</p>
+        <p class="description">${description}</p>
+      </div>
+    `;
+
+    document.getElementById('humidity').innerText=data.main.humidity+'%';
+    document.getElementById('wind').innerText=(data.wind.speed*3.6).toFixed(1)+' km/h';
+    document.getElementById('feels').innerText=data.main.feels_like+'°C';
+
+    // Change background according to weather
+    changeBackground(description.toLowerCase());
+
+    // Speak weather in Hindi
+    speakWeather(data.name, data.main.temp, description);
+  }
+  catch(err){resultBox.innerHTML='<p style="color:white;text-align:center;">Error Loading ❌</p>';}
+}
+</script>
+
+</body>
+</html>
